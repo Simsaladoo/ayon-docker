@@ -1,0 +1,32 @@
+# Ayon Server — Synology NAS (Container Manager) deployment
+# Simplified for Synology Compose import compatibility.
+#
+# Use: Container Manager -> Projects -> Create -> import this file
+# Then open http://<NAS_IP>:5050
+
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    volumes:
+      - "./storage/db:/var/lib/postgresql/data"
+    environment:
+      - POSTGRES_USER=ayon
+      - POSTGRES_PASSWORD=ayon
+      - POSTGRES_DB=ayon
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+
+  server:
+    image: ynput/ayon:latest
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "5050:5000"
+    volumes:
+      - "./addons:/addons"
+      - "./storage:/storage"
